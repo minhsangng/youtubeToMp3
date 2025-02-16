@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify
 import yt_dlp
 import os
+import imageio_ffmpeg as ffmpeg
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
@@ -9,8 +10,13 @@ os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 def download_audio(url):
     options = {
         'format': 'bestaudio/best',
-        'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
-        'outtmpl': f'{DOWNLOAD_FOLDER}/%(title)s.%(ext)s',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+        'outtmpl': f'downloads/%(title)s.%(ext)s',
+        'ffmpeg_location': ffmpeg.get_ffmpeg_exe(),  # Chỉ định ffmpeg từ imageio
     }
     with yt_dlp.YoutubeDL(options) as ydl:
         info = ydl.extract_info(url, download=True)
