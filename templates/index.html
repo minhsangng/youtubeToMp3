@@ -3,73 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube to MP3</title>
+    <title>YouTube to MP3 Converter</title>
     <style>
-        * { box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #6e45e2, #88d3ce);
-            height: 100vh;
-            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
             color: #fff;
-            text-align: center;
         }
         .container {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            width: 100%;
-            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+            width: 350px;
         }
         h2 {
             margin-bottom: 20px;
             font-size: 2em;
-            text-shadow: 2px 2px 4px #000;
         }
-        input {
+        input[type="text"] {
             padding: 12px;
             width: 100%;
             border: none;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
             font-size: 1em;
-            color: #333;
-            outline: none;
+            color: #000;
         }
         button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            background-color: #ff6b6b;
+            background: #ff6b6b;
             color: #fff;
-            font-size: 1em;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            font-size: 1.1em;
         }
         button:hover {
-            background-color: #e74c3c;
+            background: #ff4757;
         }
-        .footer {
-            margin-top: 15px;
-            font-size: 0.8em;
-            color: #fff;
-            opacity: 0.7;
+        .status {
+            margin-top: 20px;
+            font-size: 1.1em;
+            min-height: 30px;
+        }
+        .loading {
+            color: #ffe66d;
+        }
+        .success {
+            color: #38e54d;
+        }
+        .error {
+            color: #ff4b5c;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎶 YouTube to MP3 🎧</h2>
-        <form method="GET" action="http://127.0.0.1:5000/convert">
-            <input type="text" name="url" placeholder="Dán link YouTube vào đây" required>
+        <h2>🎧 YouTube to MP3 Converter</h2>
+        <form id="convertForm">
+            <input type="text" id="urlInput" name="url" placeholder="Dán link YouTube vào đây" required>
             <button type="submit">🔄 Chuyển đổi</button>
         </form>
-        <div class="footer">💡 Hỗ trợ: Nhập link YouTube và bấm "Chuyển đổi".</div>
+        <div class="status" id="statusMessage"></div>
     </div>
+
+    <script>
+        document.getElementById('convertForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const urlInput = document.getElementById('urlInput').value;
+            const statusMessage = document.getElementById('statusMessage');
+
+            if (!urlInput) {
+                statusMessage.textContent = "❌ Vui lòng nhập URL.";
+                statusMessage.className = "status error";
+                return;
+            }
+
+            // Hiển thị trạng thái "Đang tải..."
+            statusMessage.textContent = "🔄 Đang tải...";
+            statusMessage.className = "status loading";
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
+                if (!response.ok) throw new Error("Chuyển đổi thất bại!");
+
+                // Tải file về khi thành công
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = 'youtube_audio.mp3';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+
+                statusMessage.textContent = "✅ Tải xong!";
+                statusMessage.className = "status success";
+            } catch (error) {
+                statusMessage.textContent = `❌ Lỗi: ${error.message}`;
+                statusMessage.className = "status error";
+            }
+        });
+    </script>
 </body>
 </html>
