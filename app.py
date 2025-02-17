@@ -22,6 +22,10 @@ def download_audio(url):
         filename = ydl.prepare_filename(info).replace(".webm", ".mp3").replace(".m4a", ".mp3")
     return filename
 
+@app.route('/')
+def home():
+    return "Flask app is running!"
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -140,4 +144,5 @@ def index():
     '''
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

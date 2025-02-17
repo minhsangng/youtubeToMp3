@@ -7,3 +7,4 @@ ffmpeg-python==0.2.0
 certifi==2025.1.31
 imageio[ffmpeg]==2.34.0
 gunicorn==21.2.0
+flask-cors==4.0.0
