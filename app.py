@@ -8,7 +8,7 @@ os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 def download_audio(url):
     options = {
-        'format': 'bestaudio/best',
+        'format': 'bestaudio[ext=m4a]/bestaudio/best',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
